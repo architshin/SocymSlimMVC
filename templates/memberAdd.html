@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<title>会員情報登録 | SocymSlimMVC</title>
+	</head>
+	<body>
+		<header>
+			<h1>会員情報登録</h1>
+		</header>
+		<section>
+			<p>
+				情報を入力し、登録ボタンをクリックしてください。
+			</p>
+			<form action="/memberAdd" method="post">
+				<label for="addMbNameLast">
+					氏名(姓)&nbsp;
+					<input type="text" id="addMbNameLast" name="addMbNameLast" required>
+				</label><br>
+				<label for="addMbNameFirst">
+					氏名(名)&nbsp;
+					<input type="text" id="addMbNameFirst" name="addMbNameFirst" required>
+				</label><br>
+				<label for="addDpLoc">
+					生年月日
+					<input type="date" id="addMbBirth" name="addMbBirth">
+				</label><br>
+				<label for="addMbType">
+					会員種類
+					<select name="addMbType" id="addMbType" required>
+						<option value="">選択してください</option>
+						<option value="1">一般会員</option>
+						<option value="2">優良会員</option>
+						<option value="3">特別会員</option>
+					</select>
+				</label><br>
+				<button type="submit">登録</button>
+			</form>
+		</section>
+	</body>
+</html>
