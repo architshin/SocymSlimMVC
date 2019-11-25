@@ -9,4 +9,23 @@ $container->set("view",
 		return $twig;
 	}
 );
+// PDOインスタンスを生成する処理。
+$container->set("db",
+	function() {
+		// DB接続情報を表す変数。
+		$dbDns = "pgsql:dbname=socymslimdb;host=localhost;port=5432";
+		$dbUsername = "socymslimdbusr";
+		$dbPassword = "hogehoge";
+		// PDOインスタンスを生成。DB接続。
+		$db = new PDO($dbDns, $dbUsername, $dbPassword);
+		// PDOのエラー表示モードを例外モードに設定。
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		// プリペアドステートメントを有効に設定。
+		$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		// フェッチモードをカラム名のみの結果セットに設定。
+		$db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+		// PDOインスタンスをリターン。
+		return $db;
+	}
+);
 AppFactory::setContainer($container);

@@ -42,22 +42,13 @@ class MemberController
 		// 氏名データについてはtrimを実行。
 		$addMbNameLast = trim($addMbNameLast);
 		$addMbNameFirst = trim($addMbNameFirst);
-		
-		// DB接続情報を表す変数。
-		$dbDns = "pgsql:dbname=socymslimdb;host=localhost;port=5432";
-		$dbUsername = "socymslimdbusr";
-		$dbPassword = "hogehoge";
 
 		//登録用SQL文字列を用意。
 		$sqlInsert = "INSERT INTO members (mb_name_last, mb_name_first, mb_birth, mb_type) VALUES (:mb_name_last, :mb_name_first, :mb_birth, :mb_type)";
 
 		try {
-			// PDOインスタンスを生成。DB接続。
-			$db = new PDO($dbDns, $dbUsername, $dbPassword);
-			// PDOのエラー表示モードを例外モードに設定。
-			$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			// プリペアドステートメントを有効に設定。
-			$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			// PDOインスタンスをコンテナから取得。
+			$db = $this->container->get("db");
 			// プリペアドステートメントインスタンスを取得。
 			$stmt = $db->prepare($sqlInsert);
 			// 変数をバインド。
