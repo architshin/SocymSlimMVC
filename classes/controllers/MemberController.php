@@ -88,4 +88,60 @@ class MemberController
 		// レスポンスオブジェクトをリターン。
 		return $response;
 	}
+
+	// 会員情報詳細表示メソッド。
+	public function showMemberDetail(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+	{
+		// URL中のパラメータを取得。
+		$mbId = $args["id"];
+
+		// ［1］データ取得SQL文字列を用意。
+		$sqlSelect = "SELECT * FROM members WHERE id = :id";
+
+		try {
+			// PDOインスタンスをコンテナから取得。
+			$db = $this->container->get("db");
+			// ［2］プリペアドステートメントインスタンスを取得。
+			$stmt = $db->prepare($sqlSelect);
+			// ［3］変数をバインド。
+			$stmt->bindValue(":id", $mbId, PDO::PARAM_INT);
+			// ［4］SQLの実行。
+			$result = $stmt->execute();
+			// SQL実行が成功した場合。
+			if($result) {
+				// ［5］データ取得。
+				while($row = $stmt->fetch()) {
+					// 各カラムデータの取得。
+					$id = $row["id"];
+					$mbNameLast = $row["mb_name_last"];
+					$mbNameFirst = $row["mb_name_first"];
+					$mbBirth = $row["mb_birth"];
+					$mbType = $row["mb_type"];
+					// 取得したカラムデータを表示メッセージに格納。
+					$content = "ID: ".$id."<br>氏名: ".$mbNameLast.$mbNameFirst."<br>生年月日: ".$mbBirth."<br>会員種類: ".$mbType;
+				}
+			}
+			// SQL実行が失敗した場合。
+			else {
+				// 失敗メッセージを作成。
+				$content = "データ取得に失敗しました。";
+			}
+		}
+		// 例外処理。
+		catch(PDOException $ex) {
+			// 障害発生メッセージを作成。
+			$content = "障害が発生しました。";
+			var_dump($ex);
+		}
+		finally {
+			// DB切断。
+			$db = null;
+		}
+		
+		//表示メッセージをレスポンスオブジェクトに格納。
+		$responseBody = $response->getBody();
+		$responseBody->write($content);
+		// レスポンスオブジェクトをリターン。
+		return $response;
+	}
 }
