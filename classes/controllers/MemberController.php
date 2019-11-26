@@ -120,6 +120,7 @@ class MemberController
 					// 取得したカラムデータを表示メッセージに格納。
 					$content = "ID: ".$id."<br>氏名: ".$mbNameLast.$mbNameFirst."<br>生年月日: ".$mbBirth."<br>会員種類: ".$mbType;
 				}
+				// データが存在しなかった場合。
 				else {
 					$content = "指定の会員情報は存在しません。";
 				}
@@ -144,6 +145,56 @@ class MemberController
 		//表示メッセージをレスポンスオブジェクトに格納。
 		$responseBody = $response->getBody();
 		$responseBody->write($content);
+		// レスポンスオブジェクトをリターン。
+		return $response;
+	}
+
+	// 全会員情報をJSONとして取得するメソッド。
+	public function getAllMembersJSON(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+	{
+		// ［1］データ取得SQL文字列を用意。
+		$sqlSelect = "SELECT * FROM members";
+
+		try {
+			// PDOインスタンスをコンテナから取得。
+			$db = $this->container->get("db");
+			// ［2］プリペアドステートメントインスタンスを取得。
+			$stmt = $db->prepare($sqlSelect);
+			// ［4］SQLの実行。
+			$result = $stmt->execute();
+			// SQL実行が成功した場合。
+			if($result) {
+				// 成功メッセージをJSON用配列に格納。
+				$jsonArray["msg"] = "データ取得に成功しました。";
+				// SQLの結果表の全データを連想配列形式で取得。
+				$allList = $stmt->fetchAll();
+				// JSON用配列に全データ連想配列を格納。
+				$jsonArray["members"] = $allList;
+			}
+			// SQL実行が失敗した場合。
+			else {
+				// 失敗メッセージをJSON用配列に格納。
+				$jsonArray["msg"] = "データ取得に失敗しました。";
+			}
+		}
+		// 例外処理。
+		catch(PDOException $ex) {
+			// 障害発生メッセージをJSON用配列に格納。
+			$jsonArray["msg"] = "障害が発生しました。";
+			var_dump($ex);
+		}
+		finally {
+			// DB切断。
+			$db = null;
+		}
+
+		// JSON用配列をエンコード。
+		$jsonData = json_encode($jsonArray);
+		// JSONデータをレスポンスオブジェクトに格納。
+		$responseBody = $response->getBody();
+		$responseBody->write($jsonData);
+		// コンテントタイプをJSONに設定。
+		$response = $response->withHeader("Content-Type", "application/json");
 		// レスポンスオブジェクトをリターン。
 		return $response;
 	}
