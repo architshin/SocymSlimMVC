@@ -110,7 +110,7 @@ class MemberController
 			// SQL実行が成功した場合。
 			if($result) {
 				// ［5］データ取得。
-				while($row = $stmt->fetch()) {
+				if($row = $stmt->fetch()) {
 					// 各カラムデータの取得。
 					$id = $row["id"];
 					$mbNameLast = $row["mb_name_last"];
@@ -119,6 +119,9 @@ class MemberController
 					$mbType = $row["mb_type"];
 					// 取得したカラムデータを表示メッセージに格納。
 					$content = "ID: ".$id."<br>氏名: ".$mbNameLast.$mbNameFirst."<br>生年月日: ".$mbBirth."<br>会員種類: ".$mbType;
+				}
+				else {
+					$content = "指定の会員情報は存在しません。";
 				}
 			}
 			// SQL実行が失敗した場合。
