@@ -6,6 +6,7 @@ use PDOException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use SocymSlim\MVC\entities\Member;
 
 class MemberController
 {
@@ -92,6 +93,8 @@ class MemberController
 	// 会員情報詳細表示メソッド。
 	public function showMemberDetail(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
 	{
+		// テンプレート変数を格納する連想配列を用意。
+		$assign = [];
 		// URL中のパラメータを取得。
 		$mbId = $args["id"];
 
@@ -117,34 +120,44 @@ class MemberController
 					$mbNameFirst = $row["mb_name_first"];
 					$mbBirth = $row["mb_birth"];
 					$mbType = $row["mb_type"];
-					// 取得したカラムデータを表示メッセージに格納。
-					$content = "ID: ".$id."<br>氏名: ".$mbNameLast.$mbNameFirst."<br>生年月日: ".$mbBirth."<br>会員種類: ".$mbType;
+
+					// Memberエンティティインスタンスを生成。
+					$member = new Member();
+					// Memberエンティティに各カラムデータを格納。
+					$member->setId($id);
+					$member->setMbNameLast($mbNameLast);
+					$member->setMbNameFirst($mbNameFirst);
+					$member->setMbBirth($mbBirth);
+					$member->setMbType($mbType);
+					//テンプレート変数としてMemberエンティティを格納。
+					$assign["memberInfo"] = $member;
 				}
 				// データが存在しなかった場合。
 				else {
-					$content = "指定の会員情報は存在しません。";
+					$assign["msg"] = "指定の会員情報は存在しません。";
 				}
 			}
 			// SQL実行が失敗した場合。
 			else {
 				// 失敗メッセージを作成。
-				$content = "データ取得に失敗しました。";
+				$assign["msg"] = "データ取得に失敗しました。";
 			}
 		}
 		// 例外処理。
 		catch(PDOException $ex) {
 			// 障害発生メッセージを作成。
-			$content = "障害が発生しました。";
+			$assign["msg"] = "障害が発生しました。";
 			var_dump($ex);
 		}
 		finally {
 			// DB切断。
 			$db = null;
 		}
-		
-		//表示メッセージをレスポンスオブジェクトに格納。
-		$responseBody = $response->getBody();
-		$responseBody->write($content);
+
+		// Twigインスタンスをコンテナから取得。
+		$twig = $this->container->get("view");
+		// memberDetail.htmlをもとにしたレスポンスオブジェクトを生成。
+		$response = $twig->render($response, "memberDetail.html", $assign);
 		// レスポンスオブジェクトをリターン。
 		return $response;
 	}
