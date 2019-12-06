@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use SocymSlim\MVC\entities\Member;
+use SocymSlim\MVC\daos\MemberDAO;
 
 class MemberController
 {
@@ -163,50 +164,21 @@ class MemberController
 		$assign = [];
 		// URL中のパラメータを取得。
 		$mbId = $args["id"];
-
-		// ［1］データ取得SQL文字列を用意。
-		$sqlSelect = "SELECT * FROM members WHERE id = :id";
-
 		try {
 			// PDOインスタンスをコンテナから取得。
 			$db = $this->container->get("db");
-			// ［2］プリペアドステートメントインスタンスを取得。
-			$stmt = $db->prepare($sqlSelect);
-			// ［3］変数をバインド。
-			$stmt->bindValue(":id", $mbId, PDO::PARAM_INT);
-			// ［4］SQLの実行。
-			$result = $stmt->execute();
-			// SQL実行が成功した場合。
-			if($result) {
-				// ［5］データ取得。
-				if($row = $stmt->fetch()) {
-					// 各カラムデータの取得。
-					$id = $row["id"];
-					$mbNameLast = $row["mb_name_last"];
-					$mbNameFirst = $row["mb_name_first"];
-					$mbBirth = $row["mb_birth"];
-					$mbType = $row["mb_type"];
-
-					// Memberエンティティインスタンスを生成。
-					$member = new Member();
-					// Memberエンティティに各カラムデータを格納。
-					$member->setId($id);
-					$member->setMbNameLast($mbNameLast);
-					$member->setMbNameFirst($mbNameFirst);
-					$member->setMbBirth($mbBirth);
-					$member->setMbType($mbType);
-					//テンプレート変数としてMemberエンティティを格納。
-					$assign["memberInfo"] = $member;
-				}
-				// データが存在しなかった場合。
-				else {
-					$assign["msg"] = "指定の会員情報は存在しません。";
-				}
+			// MemberDAOインスタンスを生成。
+			$memberDAO = new MemberDAO($db);
+			// 主キーによる検索を実行。
+			$member = $memberDAO->findByPK($mbId);
+			// データが存在した場合。
+			if(isset($member)) {
+				//テンプレート変数としてMemberエンティティを格納。
+				$assign["memberInfo"] = $member;
 			}
-			// SQL実行が失敗した場合。
+			// データが存在しなかった場合。
 			else {
-				// 失敗メッセージを作成。
-				$assign["msg"] = "データ取得に失敗しました。";
+				$assign["msg"] = "指定の会員情報は存在しません。";
 			}
 		}
 		// 例外処理。
