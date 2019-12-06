@@ -20,6 +20,72 @@ class MemberController
 		$this->container = $container;
 	}
 
+	public function showMemberList(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+	{
+		// テンプレート変数を格納する連想配列を用意。
+		$assign = [];
+		// 会員情報リストを格納する連想配列の用意。
+		$memberList = [];
+		
+		// ［1］データ取得SQL文字列を用意。
+		$sqlSelect = "SELECT * FROM members ORDER BY id";
+		try {
+			// PDOインスタンスをコンテナから取得。
+			$db = $this->container->get("db");
+			// ［2］プリペアドステートメントインスタンスを取得。
+			$stmt = $db->prepare($sqlSelect);
+			// ［4］SQLの実行。
+			$result = $stmt->execute();
+			// SQL実行が成功した場合。
+			if($result) {
+				// ［5］フェッチループ。
+				while($row = $stmt->fetch()) {
+					// 各カラムデータの取得。
+					$id = $row["id"];
+					$mbNameLast = $row["mb_name_last"];
+					$mbNameFirst = $row["mb_name_first"];
+					$mbBirth = $row["mb_birth"];
+					$mbType = $row["mb_type"];
+
+					// Memberエンティティインスタンスを生成。
+					$member = new Member();
+					// Memberエンティティに各カラムデータを格納。
+					$member->setId($id);
+					$member->setMbNameLast($mbNameLast);
+					$member->setMbNameFirst($mbNameFirst);
+					$member->setMbBirth($mbBirth);
+					$member->setMbType($mbType);
+					// Memberエンティティを会員情報リスト連想配列に格納。
+					$memberList[$id] = $member;
+				}
+			}
+			// SQL実行が失敗した場合。
+			else {
+				// 失敗メッセージを作成。
+				$assign["msg"] = "データ取得に失敗しました。";
+			}
+		}
+		// 例外処理。
+		catch(PDOException $ex) {
+			// 障害発生メッセージを作成。
+			$assign["msg"] = "障害が発生しました。";
+			var_dump($ex);
+		}
+		finally {
+			// DB切断。
+			$db = null;
+		}
+		//テンプレート変数として会員情報リストを格納。
+		$assign["memberList"] = $memberList;
+
+		// Twigインスタンスをコンテナから取得。
+		$twig = $this->container->get("view");
+		// memberAdd.htmlをもとにしたレスポンスオブジェクトを生成。
+		$response = $twig->render($response, "memberList.html", $assign);
+		// レスポンスオブジェクトをリターン。
+		return $response;
+	}
+
 	// 会員情報登録画面を表示するメソッド。
 	public function goMemberAdd(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
 	{
