@@ -13,7 +13,7 @@
 			<p>{{msg}}</p>
 			{% else %}
 			<dl>
-				<dt>ID</dt>
+				<dt>会員ID</dt>
 				<dd>{{memberInfo.id}}</dd>
 				<dt>氏名</dt>
 				<dd>{{memberInfo.mbNameFull}}</dd>
@@ -22,12 +22,12 @@
 				<dt>会員種類</dt>
 				<dd>{{memberInfo.mbTypeStr}}</dd>
 			</dl>
-			{# <form>
-				<input type="hidden" name="" value="">
+			{# <form action="/prepareMemberEdit" method="POST">
+				<input type="hidden" name="mbId" value="{{memberInfo.id}}">
 				この会員情報を<button type="submit">編集</button>
 			</form>
-			<form>
-				<input type="hidden" name="" value="">
+			<form action="/confirmMemberDelete" method="POST">
+				<input type="hidden" name="mbId" value="{{memberInfo.id}}">
 				この会員情報を<button type="submit">削除</button>
 			</form> #}
 			{% endif %}
