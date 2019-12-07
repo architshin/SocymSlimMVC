@@ -153,6 +153,17 @@ class MemberController
 	{
 		// テンプレート変数を格納する連想配列を用意。
 		$assign = [];
+		// コンテナからフラッシュメッセージ用のMessagesインスタンスを取得。
+		$flash = $this->container->get("flash");
+		// 全てのフラッシュメッセージを取得。
+		$flashMessages = $flash->getMessages();
+		// フラッシュメッセージが存在するならば…
+		if(isset($flashMessages)) {
+			// キーflashMsgで格納されたフラッシュメッセージを取得。
+			$flashMsg = $flash->getFirstMessage("flashMsg");
+			// フラッシュメッセージをテンプレート変数として格納。
+			$assign["flashMsg"] = $flashMsg;
+		}
 		// URL中のパラメータを取得。
 		$mbId = $args["id"];
 		try {
@@ -231,6 +242,79 @@ class MemberController
 		$twig = $this->container->get("view");
 		// memberDetail.htmlをもとにしたレスポンスオブジェクトを生成。
 		$response = $twig->render($response, "memberEdit.html", $assign);
+		// レスポンスオブジェクトをリターン。
+		return $response;
+	}
+
+	// 会員情報更新メソッド。
+	public function memberEdit(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+	{
+		// リダイレクトさせるかどうかのフラグ。
+		$isRedirect = false;
+		// リクエストパラメータを取得。
+		$postParams = $request->getParsedBody();
+		$editMbId = $postParams["editMbId"];
+		$editMbNameLast = $postParams["editMbNameLast"];
+		$editMbNameFirst = $postParams["editMbNameFirst"];
+		$editMbBirth = $postParams["editMbBirth"];
+		$editMbType = $postParams["editMbType"];
+		// 氏名データについてはtrimを実行。
+		$editMbNameLast = trim($editMbNameLast);
+		$editMbNameFirst = trim($editMbNameFirst);
+
+		// リクエストパラメータをエンティティに格納。
+		$member = new Member();
+		$member->setId($editMbId);
+		$member->setMbNameLast($editMbNameLast);
+		$member->setMbNameFirst($editMbNameFirst);
+		$member->setMbBirth($editMbBirth);
+		$member->setMbType($editMbType);
+
+		try {
+			// PDOインスタンスをコンテナから取得。
+			$db = $this->container->get("db");
+			// MemberDAOインスタンスを生成。
+			$memberDAO = new MemberDAO($db);
+			// データ登録。
+			$result = $memberDAO->update($member);
+			// SQL実行が成功した場合。
+			if($result) {
+				// コンテナからフラッシュメッセージ用のMessagesインスタンスを取得。
+				$flash = $this->container->get("flash");
+				// 成功メッセージをフラッシュメッセージとして格納。
+				$flash->addMessage("flashMsg", "会員情報の更新が完了しました。");
+				// リダイレクトフラグをONに。
+				$isRedirect = true;
+			}
+			// SQL実行が失敗した場合。
+			else {
+				// 失敗メッセージを作成。
+				$content = "更新に失敗しました。";
+			}
+		}
+		// 例外処理。
+		catch(PDOException $ex) {
+			// 障害発生メッセージを作成。
+			$content = "障害が発生しました。";
+			var_dump($ex);
+		}
+		finally {
+			// DB切断。
+			$db = null;
+		}
+		
+		// リダイレクトフラグONならば…
+		if($isRedirect) {
+			// リスト表示へリダイレクト。
+			$response = $response->withHeader("Location", "/showMemberDetail/".$editMbId);
+			$response = $response->withStatus(302);
+		}
+		// リダイレクトフラグOFFならば…
+		else {
+			//表示メッセージをレスポンスオブジェクトに格納。
+			$responseBody = $response->getBody();
+			$responseBody->write($content);
+		}
 		// レスポンスオブジェクトをリターン。
 		return $response;
 	}

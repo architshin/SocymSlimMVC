@@ -8,6 +8,11 @@
 		<header>
 			<h1>会員詳細情報</h1>
 		</header>
+		{% if flashMsg %}
+		<section>
+			<p>{{flashMsg}}</p>
+		</section>
+		{% endif %}
 		<section>
 			{% if msg %}
 			<p>{{msg}}</p>
@@ -31,6 +36,9 @@
 				この会員情報を<button type="submit">削除</button>
 			</form>
 			{% endif %}
+		</section>
+		<section>
+			<a href="/showMemberList">リストへ戻る</a>
 		</section>
 	</body>
 </html>

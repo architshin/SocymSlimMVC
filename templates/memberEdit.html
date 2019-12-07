@@ -14,7 +14,7 @@
 			</p>
 			<form action="/memberEdit" method="post">
 				会員ID&nbsp;{{memberInfo.id}}<br>
-				<input type="hidden" name="editMbId" value="">
+				<input type="hidden" name="editMbId" value="{{memberInfo.id}}">
 				<label for="editMbNameLast">
 					氏名(姓)&nbsp;
 					<input type="text" id="editMbNameLast" name="editMbNameLast" value="{{memberInfo.mbNameLast}}" required>
@@ -50,6 +50,9 @@
 				</label><br>
 				<button type="submit">更新</button>
 			</form>
+		</section>
+		<section>
+			<a href="/showMemberDetail/{{memberInfo.id}}">詳細へ戻る</a>
 		</section>
 	</body>
 </html>

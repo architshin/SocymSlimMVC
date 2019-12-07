@@ -130,4 +130,28 @@ class MemberDAO
 		}
 		return $mbId;
 	}
+
+	// データ更新メソッド。
+	public function update(Member $member): bool
+	{
+		//更新用SQL文字列を用意。
+		$sqlUpdate = "UPDATE members SET mb_name_last = :mb_name_last, mb_name_first = :mb_name_first, mb_birth = :mb_birth, mb_type = :mb_type WHERE id = :id";
+		// プリペアドステートメントインスタンスを取得。
+		$stmt = $this->db->prepare($sqlUpdate);
+		// 変数をバインド。
+		$stmt->bindValue(":mb_name_last", $member->getMbNameLast(), PDO::PARAM_STR);
+		$stmt->bindValue(":mb_name_first", $member->getMbNameFirst(), PDO::PARAM_STR);
+		if(empty($member->getMbBirth())) {
+			$stmt->bindValue(":mb_birth", null, PDO::PARAM_NULL);
+		}
+		else {
+			$stmt->bindValue(":mb_birth", $member->getMbBirth(), PDO::PARAM_STR);
+		}
+		$stmt->bindValue(":mb_type", $member->getMbType(), PDO::PARAM_INT);
+		$stmt->bindValue(":id", $member->getId(), PDO::PARAM_INT);
+		// SQLの実行。
+		$result = $stmt->execute();
+		// SQL実行の戻り値をそのままリターン
+		return $result;
+	}
 }
