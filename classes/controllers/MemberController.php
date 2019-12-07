@@ -25,46 +25,13 @@ class MemberController
 	{
 		// テンプレート変数を格納する連想配列を用意。
 		$assign = [];
-		// 会員情報リストを格納する連想配列の用意。
-		$memberList = [];
-		
-		// ［1］データ取得SQL文字列を用意。
-		$sqlSelect = "SELECT * FROM members ORDER BY id";
 		try {
 			// PDOインスタンスをコンテナから取得。
 			$db = $this->container->get("db");
-			// ［2］プリペアドステートメントインスタンスを取得。
-			$stmt = $db->prepare($sqlSelect);
-			// ［4］SQLの実行。
-			$result = $stmt->execute();
-			// SQL実行が成功した場合。
-			if($result) {
-				// ［5］フェッチループ。
-				while($row = $stmt->fetch()) {
-					// 各カラムデータの取得。
-					$id = $row["id"];
-					$mbNameLast = $row["mb_name_last"];
-					$mbNameFirst = $row["mb_name_first"];
-					$mbBirth = $row["mb_birth"];
-					$mbType = $row["mb_type"];
-
-					// Memberエンティティインスタンスを生成。
-					$member = new Member();
-					// Memberエンティティに各カラムデータを格納。
-					$member->setId($id);
-					$member->setMbNameLast($mbNameLast);
-					$member->setMbNameFirst($mbNameFirst);
-					$member->setMbBirth($mbBirth);
-					$member->setMbType($mbType);
-					// Memberエンティティを会員情報リスト連想配列に格納。
-					$memberList[$id] = $member;
-				}
-			}
-			// SQL実行が失敗した場合。
-			else {
-				// 失敗メッセージを作成。
-				$assign["msg"] = "データ取得に失敗しました。";
-			}
+			// MemberDAOインスタンスを生成。
+			$memberDAO = new MemberDAO($db);
+			// 全件データを取得。
+			$memberList = $memberDAO->findAll();
 		}
 		// 例外処理。
 		catch(PDOException $ex) {
@@ -111,25 +78,22 @@ class MemberController
 		$addMbNameLast = trim($addMbNameLast);
 		$addMbNameFirst = trim($addMbNameFirst);
 
-		//登録用SQL文字列を用意。
-		$sqlInsert = "INSERT INTO members (mb_name_last, mb_name_first, mb_birth, mb_type) VALUES (:mb_name_last, :mb_name_first, :mb_birth, :mb_type)";
+		// リクエストパラメータをエンティティに格納。
+		$member = new Member();
+		$member->setMbNameLast($addMbNameLast);
+		$member->setMbNameFirst($addMbNameFirst);
+		$member->setMbBirth($addMbBirth);
+		$member->setMbType($addMbType);
 
 		try {
 			// PDOインスタンスをコンテナから取得。
 			$db = $this->container->get("db");
-			// プリペアドステートメントインスタンスを取得。
-			$stmt = $db->prepare($sqlInsert);
-			// 変数をバインド。
-			$stmt->bindValue(":mb_name_last", $addMbNameLast, PDO::PARAM_STR);
-			$stmt->bindValue(":mb_name_first", $addMbNameFirst, PDO::PARAM_STR);
-			$stmt->bindValue(":mb_birth", $addMbBirth, PDO::PARAM_STR);
-			$stmt->bindValue(":mb_type", $addMbType, PDO::PARAM_INT);
-			// SQLの実行。
-			$result = $stmt->execute();
+			// MemberDAOインスタンスを生成。
+			$memberDAO = new MemberDAO($db);
+			// データ登録。
+			$mbId = $memberDAO->insert($member);
 			// SQL実行が成功した場合。
-			if($result) {
-				// 連番主キーを取得。
-				$mbId = $db->lastInsertId();
+			if($mbId !== -1) {
 				// 成功メッセージを作成。
 				$content = "ID ".$mbId."で登録が完了しました。";
 			}
@@ -203,22 +167,17 @@ class MemberController
 	// 全会員情報をJSONとして取得するメソッド。
 	public function getAllMembersJSON(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
 	{
-		// ［1］データ取得SQL文字列を用意。
-		$sqlSelect = "SELECT * FROM members";
-
 		try {
 			// PDOインスタンスをコンテナから取得。
 			$db = $this->container->get("db");
-			// ［2］プリペアドステートメントインスタンスを取得。
-			$stmt = $db->prepare($sqlSelect);
-			// ［4］SQLの実行。
-			$result = $stmt->execute();
+			// MemberDAOインスタンスを生成。
+			$memberDAO = new MemberDAO($db);
+			// 全データを連想配列として取得。
+			$allList = $memberDAO->findAll2Array();
 			// SQL実行が成功した場合。
-			if($result) {
+			if(!empty($allList)) {
 				// 成功メッセージをJSON用配列に格納。
 				$jsonArray["msg"] = "データ取得に成功しました。";
-				// SQLの結果表の全データを連想配列形式で取得。
-				$allList = $stmt->fetchAll();
 				// JSON用配列に全データ連想配列を格納。
 				$jsonArray["members"] = $allList;
 			}
