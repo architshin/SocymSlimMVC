@@ -5,7 +5,8 @@ use Slim\Views\Twig;
 $container = new Container();
 $container->set("view",
 	function() {
-		$twig = Twig::create($_SERVER["DOCUMENT_ROOT"]."/../templates");
+		// $twig = Twig::create($_SERVER["DOCUMENT_ROOT"]."/../templates");
+		$twig = new Twig($_SERVER["DOCUMENT_ROOT"]."/../templates");
 		return $twig;
 	}
 );
