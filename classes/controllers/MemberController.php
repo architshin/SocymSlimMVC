@@ -68,6 +68,8 @@ class MemberController
 	// 会員情報登録メソッド。
 	public function memberAdd(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
 	{
+		// リダイレクトさせるかどうかのフラグ。
+		$isRedirect = false;
 		// リクエストパラメータを取得。
 		$postParams = $request->getParsedBody();
 		$addMbNameLast = $postParams["addMbNameLast"];
@@ -96,6 +98,8 @@ class MemberController
 			if($mbId !== -1) {
 				// 成功メッセージを作成。
 				$content = "ID ".$mbId."で登録が完了しました。";
+				// リダイレクトフラグをONに。
+				$isRedirect = true;
 			}
 			// SQL実行が失敗した場合。
 			else {
@@ -114,9 +118,18 @@ class MemberController
 			$db = null;
 		}
 		
-		//表示メッセージをレスポンスオブジェクトに格納。
-		$responseBody = $response->getBody();
-		$responseBody->write($content);
+		// リダイレクトフラグONならば…
+		if($isRedirect) {
+			// リスト表示へリダイレクト。
+			$response = $response->withHeader("Location", "/showMemberList");
+			$response = $response->withStatus(302);
+		}
+		// リダイレクトフラグOFFならば…
+		else {
+			//表示メッセージをレスポンスオブジェクトに格納。
+			$responseBody = $response->getBody();
+			$responseBody->write($content);
+		}
 		// レスポンスオブジェクトをリターン。
 		return $response;
 	}
