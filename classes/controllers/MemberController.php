@@ -21,10 +21,22 @@ class MemberController
 		$this->container = $container;
 	}
 
+	// 会員情報リスト表示メソッド
 	public function showMemberList(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
 	{
 		// テンプレート変数を格納する連想配列を用意。
 		$assign = [];
+		// コンテナからフラッシュメッセージ用のMessagesインスタンスを取得。
+		$flash = $this->container->get("flash");
+		// 全てのフラッシュメッセージを取得。
+		$flashMessages = $flash->getMessages();
+		// フラッシュメッセージが存在するならば…
+		if(isset($flashMessages)) {
+			// キーflashMsgで格納されたフラッシュメッセージを取得。
+			$flashMsg = $flash->getFirstMessage("flashMsg");
+			// フラッシュメッセージをテンプレート変数として格納。
+			$assign["flashMsg"] = $flashMsg;
+		}
 		try {
 			// PDOインスタンスをコンテナから取得。
 			$db = $this->container->get("db");
@@ -96,8 +108,10 @@ class MemberController
 			$mbId = $memberDAO->insert($member);
 			// SQL実行が成功した場合。
 			if($mbId !== -1) {
-				// 成功メッセージを作成。
-				$content = "ID ".$mbId."で登録が完了しました。";
+				// コンテナからフラッシュメッセージ用のMessagesインスタンスを取得。
+				$flash = $this->container->get("flash");
+				// 成功メッセージをフラッシュメッセージとして格納。
+				$flash->addMessage("flashMsg", "ID ".$mbId."で登録が完了しました。");
 				// リダイレクトフラグをONに。
 				$isRedirect = true;
 			}
