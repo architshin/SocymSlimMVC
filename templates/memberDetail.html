@@ -8,6 +8,11 @@
 		<header>
 			<h1>会員詳細情報</h1>
 		</header>
+		{% if flashMsg %}
+		<section>
+			<p>{{flashMsg}}</p>
+		</section>
+		{% endif %}
 		<section>
 			{% if msg %}
 			<p>{{msg}}</p>
@@ -22,15 +27,18 @@
 				<dt>会員種類</dt>
 				<dd>{{memberInfo.mbTypeStr}}</dd>
 			</dl>
-			{# <form action="/prepareMemberEdit" method="POST">
+			<form action="/prepareMemberEdit" method="POST">
 				<input type="hidden" name="mbId" value="{{memberInfo.id}}">
 				この会員情報を<button type="submit">編集</button>
 			</form>
 			<form action="/confirmMemberDelete" method="POST">
 				<input type="hidden" name="mbId" value="{{memberInfo.id}}">
 				この会員情報を<button type="submit">削除</button>
-			</form> #}
+			</form>
 			{% endif %}
+		</section>
+		<section>
+			<a href="/showMemberList">リストへ戻る</a>
 		</section>
 	</body>
 </html>
