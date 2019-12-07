@@ -154,4 +154,19 @@ class MemberDAO
 		// SQL実行の戻り値をそのままリターン
 		return $result;
 	}
+
+	// データ削除メソッド。
+	public function delete(int $id): bool
+	{
+		//削除用SQL文字列を用意。
+		$sqlDelete = "DELETE FROM members WHERE id = :id";
+		// プリペアドステートメントインスタンスを取得。
+		$stmt = $this->db->prepare($sqlDelete);
+		// 変数をバインド。
+		$stmt->bindValue(":id", $id, PDO::PARAM_INT);
+		// SQLの実行。
+		$result = $stmt->execute();
+		// SQL実行の戻り値をそのままリターン
+		return $result;
+	}
 }
