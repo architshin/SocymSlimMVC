@@ -295,7 +295,7 @@ class MemberController
 		// 例外処理。
 		catch(PDOException $ex) {
 			// 障害発生メッセージを作成。
-			$content = "障害が発生しました。";
+			$assign["msg"] = "障害が発生しました。";
 			var_dump($ex);
 		}
 		finally {
