@@ -191,6 +191,50 @@ class MemberController
 		return $response;
 	}
 
+	// 会員情報編集画面表示メソッド。
+	public function prepareMemberEdit(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+	{
+		// テンプレート変数を格納する連想配列を用意。
+		$assign = [];
+		// リクエストパラメータを取得。
+		$postParams = $request->getParsedBody();
+		$mbId = $postParams["mbId"];
+		try {
+			// PDOインスタンスをコンテナから取得。
+			$db = $this->container->get("db");
+			// MemberDAOインスタンスを生成。
+			$memberDAO = new MemberDAO($db);
+			// 主キーによる検索を実行。
+			$member = $memberDAO->findByPK($mbId);
+			// データが存在した場合。
+			if(isset($member)) {
+				//テンプレート変数としてMemberエンティティを格納。
+				$assign["memberInfo"] = $member;
+			}
+			// データが存在しなかった場合。
+			else {
+				$assign["msg"] = "指定の会員情報は存在しません。";
+			}
+		}
+		// 例外処理。
+		catch(PDOException $ex) {
+			// 障害発生メッセージを作成。
+			$assign["msg"] = "障害が発生しました。";
+			var_dump($ex);
+		}
+		finally {
+			// DB切断。
+			$db = null;
+		}
+
+		// Twigインスタンスをコンテナから取得。
+		$twig = $this->container->get("view");
+		// memberDetail.htmlをもとにしたレスポンスオブジェクトを生成。
+		$response = $twig->render($response, "memberEdit.html", $assign);
+		// レスポンスオブジェクトをリターン。
+		return $response;
+	}
+
 	// 全会員情報をJSONとして取得するメソッド。
 	public function getAllMembersJSON(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
 	{
