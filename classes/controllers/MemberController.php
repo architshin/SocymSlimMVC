@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use SocymSlim\MVC\entities\Member;
 use SocymSlim\MVC\daos\MemberDAO;
+use SocymSlim\MVC\exceptions\DataAccessException;
 
 class MemberController
 {
@@ -117,15 +118,16 @@ class MemberController
 			}
 			// SQL実行が失敗した場合。
 			else {
-				// 失敗メッセージを作成。
-				$content = "登録に失敗しました。";
+				// 失敗メッセージを格納したDataAccessExceptionを発生。
+				throw new DataAccessException("登録に失敗しました。");
 			}
 		}
 		// 例外処理。
 		catch(PDOException $ex) {
-			// 障害発生メッセージを作成。
-			$content = "障害が発生しました。";
-			var_dump($ex);
+			// 発生したPDOExceptionのコードを取得。
+			$exCode = $ex->getCode();
+			// 新たにDataAccessExceptionを発生。
+			throw new DataAccessException("データベース処理中に障害が発生しました。", $exCode, $ex);
 		}
 		finally {
 			// DB切断。
@@ -140,9 +142,7 @@ class MemberController
 		}
 		// リダイレクトフラグOFFならば…
 		else {
-			//表示メッセージをレスポンスオブジェクトに格納。
-			$responseBody = $response->getBody();
-			$responseBody->write($content);
+			//バリデーションなどで元の入力画面を表示させるなど、リダイレクト以外の画面表示処理の場合はここにコードを記述する。
 		}
 		// レスポンスオブジェクトをリターン。
 		return $response;
