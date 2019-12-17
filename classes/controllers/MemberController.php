@@ -427,7 +427,7 @@ class MemberController
 			// PDOインスタンスをコンテナから取得。
 			$db = $this->container->get("db");
 			// MemberDAOインスタンスを生成。
-			$memberDAO = new MemberDAO($db);
+			$memberDAO = $this->container->call("memberDAO", [$db]);
 			// 全データを連想配列として取得。
 			$allList = $memberDAO->findAll2Array();
 			// SQL実行が成功した場合。
