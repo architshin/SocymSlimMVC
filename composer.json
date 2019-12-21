@@ -10,5 +10,8 @@
 		"psr-4": {
 			"SocymSlim\\MVC\\": "classes/"
 		}
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^8.5"
 	}
 }

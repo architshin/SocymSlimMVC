@@ -1,8 +1,10 @@
 <?php
+use PDO;
 use DI\Container;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Flash\Messages;
+use SocymSlim\MVC\daos\MemberDAO;
 
 $container = new Container();
 $container->set("view",
@@ -49,5 +51,11 @@ $container->set("flash",
 		$flash = new Messages();
 		return $flash;
 	}
+);
+// MemberDAOインスタンスを生成する処理。
+$container->set("memberDAO",
+	\DI\value(function(PDO $db) {
+		return new MemberDAO($db);
+	})
 );
 AppFactory::setContainer($container);
