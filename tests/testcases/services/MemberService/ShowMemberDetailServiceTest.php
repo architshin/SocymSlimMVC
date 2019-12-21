@@ -40,7 +40,7 @@ class ShowMemberDetailServiceTest extends TestCase
 		$memberService = new MemberService($container);
 		// showMemberDetailService()メソッドを実行。
 		$returnArray = $memberService->showMemberDetailService(5);
-		// 期待値のテンプレート変数を生成。
+		// 想定値のテンプレート変数を生成。
 		$expectedMember = new Member();
 		$expectedMember->setId(5);
 		$expectedMember->setMbNameLast("中村");

@@ -67,12 +67,12 @@ class GetAllMembersJSONTest extends TestCase
 		$returnResponse = $memberCotroller->getAllMembersJSON($stubRequest, $response, []);
 		// レスポンスボディに格納されたJSON文字列を取得。
 		$responseBody = (string) $returnResponse->getBody();
-		// 期待値のJSON配列を生成。
+		// 想定値のJSON配列を生成。
 		$expectedReturnArray = [
 			"msg" => "データ取得に成功しました。",
 			"members" => $this->memberList
 		];
-		// 期待値のJSON配列をJSON文字列化。
+		// 想定値のJSON配列をJSON文字列化。
 		$expectedReturnJSON = json_encode($expectedReturnArray);
 		// アサーション。
 		$this->assertSame($responseBody, $expectedReturnJSON);
