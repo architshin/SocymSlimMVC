@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<title>会員情報リスト | SocymSlimMVC</title>
+		<style>
+			table {
+				border-collapse: collapse;
+			}
+			th, td {
+				border: solid 1px black;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>会員情報リスト</h1>
+		</header>
+		<section>
+			{% if msg %}
+			<p>{{msg}}</p>
+			{% else %}
+			<table>
+				<thead>
+					<tr>
+						<th>会員ID</th>
+						<th>会員氏名</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for id, member in memberList %}
+					<tr>
+						<td>{{id}}</td>
+						<td>{{member.mbNameFull}}</td>
+						<td><a href="/showMemberDetail/{{id}}">詳細表示</a></td>
+					</tr>
+					{% else %}
+					<tr>
+						<td colspan="3">表示する会員情報はありません。</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% endif %}
+		</section>
+		<section>
+			<p>
+				新規会員の登録は<a href="/goMemberAdd">こちら</a>から。
+			</p>
+		</section>
+	</body>
+</html>
