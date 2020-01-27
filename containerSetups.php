@@ -50,4 +50,10 @@ $container->set("flash",
 		return $flash;
 	}
 );
+// MemberDAOインスタンスを生成する処理。
+$container->set("memberDAO",
+	\DI\value(function(PDO $db) {
+		return new MemberDAO($db);
+	})
+);
 AppFactory::setContainer($container);
