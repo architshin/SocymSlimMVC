@@ -37,7 +37,7 @@ class Member
 				$mbTypeStr = "優良会員";
 				break;
 			case 3:
-				$mbBirthStr = "特別会員";
+				$mbTypeStr = "特別会員";
 				break;
 		}
 		// 結果をリターン。
