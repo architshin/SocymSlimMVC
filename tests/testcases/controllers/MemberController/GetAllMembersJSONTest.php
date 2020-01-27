@@ -35,18 +35,26 @@ class GetAllMembersJSONTest extends TestCase
 			"mb_type" => 3,
 		],
 	];
+	// MemberDAOのテストダブルプロパティ。
+	private $stubMemberDAO;
+	// ServerRequestInterfaceのテストダブルプロパティ。
+	private $stubRequest;
+	// レスポンスプロパティ。
+	private $response;
+	// MemberControllerプロパティ。
+	private $memberController;
 
-	// 正常系のテスト。会員リストが返される場合。
-	public function testSuccess()
+	// セットアップメソッド。
+	protected function setUp(): void
 	{
 		// MemberDAOのテストダブルを作成。
 		$stubMemberDAO = $this->createMock(MemberDAO::class);
-		// MemberDAOのテストダブルのメソッドfindAll2Array()の戻り値を設定。
-		$stubMemberDAO->method("findAll2Array")->willReturn($this->memberList);
+		// MemberDAOのテストダブルをプロパティに代入。
+		$this->stubMemberDAO = $stubMemberDAO;
 		// ServerRequestInterfaceのテストダブルを作成。
-		$stubRequest = $this->createMock(ServerRequestInterface::class);
+		$this->stubRequest = $this->createMock(ServerRequestInterface::class);
 		// レスポンスインスタンスを生成。
-		$response = new Response();
+		$this->response = new Response();
 		// コンテナインスタンスを生成。
 		$container = new Container();
 		// dbインスタンスの生成処理を登録。
@@ -62,9 +70,16 @@ class GetAllMembersJSONTest extends TestCase
 			})
 		);
 		// MemberControllerインスタンスを生成。
-		$memberCotroller = new MemberController($container);
+		$this->memberController = new MemberController($container);
+	}
+	
+	// 正常系のテスト。会員リストが返される場合。
+	public function testSuccess()
+	{
+		// MemberDAOのテストダブルのメソッドfindAll2Array()の戻り値を設定。
+		$this->stubMemberDAO->method("findAll2Array")->willReturn($this->memberList);
 		// getAllMembersJSON()メソッドを実行。
-		$returnResponse = $memberCotroller->getAllMembersJSON($stubRequest, $response, []);
+		$returnResponse = $this->memberController->getAllMembersJSON($this->stubRequest, $this->response, []);
 		// レスポンスボディに格納されたJSON文字列を取得。
 		$responseBody = (string) $returnResponse->getBody();
 		// 想定値のJSON配列を生成。
@@ -80,23 +95,8 @@ class GetAllMembersJSONTest extends TestCase
 	// 非正常系のテスト。空の会員リストが返される場合。
 	public function testEmpty()
 	{
-		$stubMemberDAO = $this->createMock(MemberDAO::class);
-		$stubMemberDAO->method("findAll2Array")->willReturn([]);
-		$stubRequest = $this->createMock(ServerRequestInterface::class);
-		$response = new Response();
-		$container = new Container();
-		$container->set("db",
-			function() {
-				return null;
-			}
-		);
-		$container->set("memberDAO",
-			\DI\value(function($db) use ($stubMemberDAO) {
-				return $stubMemberDAO;
-			})
-		);
-		$memberCotroller = new MemberController($container);
-		$returnResponse = $memberCotroller->getAllMembersJSON($stubRequest, $response, []);
+		$this->stubMemberDAO->method("findAll2Array")->willReturn([]);
+		$returnResponse = $this->memberController->getAllMembersJSON($this->stubRequest, $this->response, []);
 		$responseBody = (string) $returnResponse->getBody();
 		$expectedReturnArray = [
 			"msg" => "データ取得に失敗しました。"
@@ -107,23 +107,8 @@ class GetAllMembersJSONTest extends TestCase
 	// 非正常系テスト。PDOExceptionが発生する場合。
 	public function testException()
 	{
-		$stubMemberDAO = $this->createMock(MemberDAO::class);
-		$stubMemberDAO->method("findAll2Array")->will($this->throwException(new PDOException()));
-		$stubRequest = $this->createMock(ServerRequestInterface::class);
-		$response = new Response();
-		$container = new Container();
-		$container->set("db",
-			function() {
-				return null;
-			}
-		);
-		$container->set("memberDAO",
-			\DI\value(function($db) use ($stubMemberDAO) {
-				return $stubMemberDAO;
-			})
-		);
-		$memberCotroller = new MemberController($container);
-		$returnResponse = $memberCotroller->getAllMembersJSON($stubRequest, $response, []);
+		$this->stubMemberDAO->method("findAll2Array")->will($this->throwException(new PDOException()));
+		$returnResponse = $this->memberController->getAllMembersJSON($this->stubRequest, $this->response, []);
 		$responseBody = (string) $returnResponse->getBody();
 		$expectedReturnArray = [
 			"msg" => "障害が発生しました。"
