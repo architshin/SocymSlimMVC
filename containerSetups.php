@@ -1,8 +1,10 @@
 <?php
+use PDO;
 use DI\Container;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Flash\Messages;
+use SocymSlim\MVC\daos\MemberDAO;
 
 $container = new Container();
 $container->set("view",
