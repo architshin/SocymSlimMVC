@@ -9,6 +9,7 @@ use Psr\Container\ContainerInterface;
 use SocymSlim\MVC\entities\Member;
 use SocymSlim\MVC\daos\MemberDAO;
 use SocymSlim\MVC\exceptions\DataAccessException;
+use SocymSlim\MVC\services\MemberService;
 
 class MemberController
 {
@@ -157,35 +158,10 @@ class MemberController
 		$assign = [];
 		// URL中のパラメータを取得。
 		$mbId = $args["id"];
-		try {
-			// PDOインスタンスをコンテナから取得。
-			$db = $this->container->get("db");
-			// MemberDAOインスタンスを生成。
-			$memberDAO = new MemberDAO($db);
-			// 主キーによる検索を実行。
-			$member = $memberDAO->findByPK($mbId);
-			// データが存在した場合。
-			if(isset($member)) {
-				//テンプレート変数としてMemberエンティティを格納。
-				$assign["memberInfo"] = $member;
-			}
-			// データが存在しなかった場合。
-			else {
-				$assign["msg"] = "指定の会員情報は存在しません。";
-			}
-		}
-		// 例外処理。
-		catch(PDOException $ex) {
-			// 発生したPDOExceptionのコードを取得。
-			$exCode = $ex->getCode();
-			// 新たにDataAccessExceptionを発生。
-			throw new DataAccessException("データベース処理中に障害が発生しました。", $exCode, $ex);
-		}
-		finally {
-			// DB切断。
-			$db = null;
-		}
-
+		// MemberServiceインスタンスを生成。
+		$memberService = new MemberService($this->container);
+		// このメソッドに対応するshowMemberDetailService()を実行。
+		$assign += $memberService->showMemberDetailService($mbId);
 		// Twigインスタンスをコンテナから取得。
 		$twig = $this->container->get("view");
 		// memberDetail.htmlをもとにしたレスポンスオブジェクトを生成。
@@ -200,8 +176,8 @@ class MemberController
 		try {
 			// PDOインスタンスをコンテナから取得。
 			$db = $this->container->get("db");
-			// MemberDAOインスタンスを生成。
-			$memberDAO = new MemberDAO($db);
+			// MemberDAOインスタンスをコンテナから取得。
+			$memberDAO = $this->container->call("memberDAO", [$db]);
 			// 全データを連想配列として取得。
 			$allList = $memberDAO->findAll2Array();
 			// SQL実行が成功した場合。
