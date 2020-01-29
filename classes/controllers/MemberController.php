@@ -8,7 +8,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use SocymSlim\MVC\entities\Member;
 use SocymSlim\MVC\daos\MemberDAO;
-use SocymSlim\MVC\exceptions\DataAccessException;
 
 class MemberController
 {
@@ -142,7 +141,9 @@ class MemberController
 		}
 		// リダイレクトフラグOFFならば…
 		else {
-			//バリデーションなどで元の入力画面を表示させるなど、リダイレクト以外の画面表示処理の場合はここにコードを記述する。
+			//表示メッセージをレスポンスオブジェクトに格納。
+			$responseBody = $response->getBody();
+			$responseBody->write($content);
 		}
 		// レスポンスオブジェクトをリターン。
 		return $response;
