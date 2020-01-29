@@ -9,19 +9,18 @@ use SocymSlim\MVC\entities\Member;
 
 class ShowMemberDetailServiceTest extends TestCase
 {
-	public function testSuccess()
+	// MemberDAOのテストダブルプロパティ。
+	private $stubMemberDAO;
+	// MemberServiceプロパティ。
+	private $memberService;
+
+	// セットアップメソッド。
+	protected function setUp(): void
 	{
-		// ダミーの会員情報エンティティを作成。
-		$member = new Member();
-		$member->setId(5);
-		$member->setMbNameLast("中村");
-		$member->setMbNameFirst("恵");
-		$member->setMbBirth("1996-05-14");
-		$member->setMbType(2);
 		// MemberDAOのテストダブルを作成。
 		$stubMemberDAO = $this->createMock(MemberDAO::class);
-		// MemberDAOのテストダブルのメソッドfindByPK()の戻り値を設定。
-		$stubMemberDAO->method("findByPK")->willReturn($member);
+		// MemberDAOのテストダブルをプロパティに代入。
+		$this->stubMemberDAO = $stubMemberDAO;
 		// コンテナインスタンスを生成。
 		$container = new Container();
 		// dbインスタンスの生成処理を登録。
@@ -37,9 +36,21 @@ class ShowMemberDetailServiceTest extends TestCase
 			})
 		);
 		// MemberServiceインスタンスを生成。
-		$memberService = new MemberService($container);
+		$this->memberService = new MemberService($container);
+	}
+	public function testSuccess()
+	{
+		// ダミーの会員情報エンティティを作成。
+		$member = new Member();
+		$member->setId(5);
+		$member->setMbNameLast("中村");
+		$member->setMbNameFirst("恵");
+		$member->setMbBirth("1996-05-14");
+		$member->setMbType(2);
+		// MemberDAOのテストダブルのメソッドfindByPK()の戻り値を設定。
+		$this->stubMemberDAO->method("findByPK")->willReturn($member);
 		// showMemberDetailService()メソッドを実行。
-		$returnArray = $memberService->showMemberDetailService(5);
+		$returnArray = $this->memberService->showMemberDetailService(5);
 		// 想定値のテンプレート変数を生成。
 		$expectedMember = new Member();
 		$expectedMember->setId(5);
