@@ -156,17 +156,6 @@ class MemberController
 		$templatePath = "memberDetail.html";
 		// テンプレート変数を格納する連想配列を用意。
 		$assign = [];
-		// コンテナからフラッシュメッセージ用のMessagesインスタンスを取得。
-		$flash = $this->container->get("flash");
-		// 全てのフラッシュメッセージを取得。
-		$flashMessages = $flash->getMessages();
-		// フラッシュメッセージが存在するならば…
-		if(isset($flashMessages)) {
-			// キーflashMsgで格納されたフラッシュメッセージを取得。
-			$flashMsg = $flash->getFirstMessage("flashMsg");
-			// フラッシュメッセージをテンプレート変数として格納。
-			$assign["flashMsg"] = $flashMsg;
-		}
 		// URL中のパラメータを取得。
 		$mbId = $args["id"];
 		// MemberServiceインスタンスを生成。
