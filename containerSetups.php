@@ -2,6 +2,8 @@
 use DI\Container;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
+use Slim\Flash\Messages;
+
 $container = new Container();
 $container->set("view",
 	function() {
@@ -26,6 +28,14 @@ $container->set("db",
 		$db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 		// PDOインスタンスをリターン。
 		return $db;
+	}
+);
+// フラッシュメッセージ用のMessageインスタンスを生成する処理。
+$container->set("flash",
+	function() {
+		session_start();
+		$flash = new Messages();
+		return $flash;
 	}
 );
 AppFactory::setContainer($container);

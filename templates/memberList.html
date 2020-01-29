@@ -16,6 +16,11 @@
 		<header>
 			<h1>会員情報リスト</h1>
 		</header>
+		{% if flashMsg %}
+		<section>
+			<p>{{flashMsg}}</p>
+		</section>
+		{% endif %}
 		<section>
 			{% if msg %}
 			<p>{{msg}}</p>
