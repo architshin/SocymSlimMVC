@@ -117,16 +117,15 @@ class MemberController
 			}
 			// SQL実行が失敗した場合。
 			else {
-				// 失敗メッセージを格納したDataAccessExceptionを発生。
-				throw new DataAccessException("登録に失敗しました。");
+				// 失敗メッセージを作成。
+				$content = "登録に失敗しました。";
 			}
 		}
 		// 例外処理。
 		catch(PDOException $ex) {
-			// 発生したPDOExceptionのコードを取得。
-			$exCode = $ex->getCode();
-			// 新たにDataAccessExceptionを発生。
-			throw new DataAccessException("データベース処理中に障害が発生しました。", $exCode, $ex);
+			// 障害発生メッセージを作成。
+			$content = "障害が発生しました。";
+			var_dump($ex);
 		}
 		finally {
 			// DB切断。
@@ -152,8 +151,6 @@ class MemberController
 	// 会員情報詳細表示メソッド。
 	public function showMemberDetail(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
 	{
-		// 表示先テンプレートのファイルパス。
-		$templatePath = "memberDetail.html";
 		// テンプレート変数を格納する連想配列を用意。
 		$assign = [];
 		// コンテナからフラッシュメッセージ用のMessagesインスタンスを取得。
@@ -188,10 +185,9 @@ class MemberController
 		}
 		// 例外処理。
 		catch(PDOException $ex) {
-			// 発生したPDOExceptionのコードを取得。
-			$exCode = $ex->getCode();
-			// 新たにDataAccessExceptionを発生。
-			throw new DataAccessException("データベース処理中に障害が発生しました。", $exCode, $ex);
+			// 障害発生メッセージを作成。
+			$assign["msg"] = "障害が発生しました。";
+			var_dump($ex);
 		}
 		finally {
 			// DB切断。
@@ -201,7 +197,7 @@ class MemberController
 		// Twigインスタンスをコンテナから取得。
 		$twig = $this->container->get("view");
 		// memberDetail.htmlをもとにしたレスポンスオブジェクトを生成。
-		$response = $twig->render($response, $templatePath, $assign);
+		$response = $twig->render($response, "memberDetail.html", $assign);
 		// レスポンスオブジェクトをリターン。
 		return $response;
 	}
@@ -233,6 +229,7 @@ class MemberController
 		catch(PDOException $ex) {
 			// 障害発生メッセージをJSON用配列に格納。
 			$jsonArray["msg"] = "障害が発生しました。";
+			var_dump($ex);
 		}
 		finally {
 			// DB切断。
